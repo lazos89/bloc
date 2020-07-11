@@ -13,44 +13,38 @@ class AuthenticationBloc
 
   AuthenticationBloc({@required UserRepository userRepository})
       : assert(userRepository != null),
-        _userRepository = userRepository;
-
-  @override
-  AuthenticationState get initialState => Uninitialized();
+        _userRepository = userRepository,
+        super(AuthenticationInitial());
 
   @override
   Stream<AuthenticationState> mapEventToState(
     AuthenticationEvent event,
   ) async* {
-    if (event is AppStarted) {
-      yield* _mapAppStartedToState();
-    } else if (event is LoggedIn) {
-      yield* _mapLoggedInToState();
-    } else if (event is LoggedOut) {
-      yield* _mapLoggedOutToState();
+    if (event is AuthenticationStarted) {
+      yield* _mapAuthenticationStartedToState();
+    } else if (event is AuthenticationLoggedIn) {
+      yield* _mapAuthenticationLoggedInToState();
+    } else if (event is AuthenticationLoggedOut) {
+      yield* _mapAuthenticationLoggedOutToState();
     }
   }
 
-  Stream<AuthenticationState> _mapAppStartedToState() async* {
-    try {
-      final isSignedIn = await _userRepository.isSignedIn();
-      if (isSignedIn) {
-        final name = await _userRepository.getUser();
-        yield Authenticated(name);
-      } else {
-        yield Unauthenticated();
-      }
-    } catch (_) {
-      yield Unauthenticated();
+  Stream<AuthenticationState> _mapAuthenticationStartedToState() async* {
+    final isSignedIn = await _userRepository.isSignedIn();
+    if (isSignedIn) {
+      final name = await _userRepository.getUser();
+      yield AuthenticationSuccess(name);
+    } else {
+      yield AuthenticationFailure();
     }
   }
 
-  Stream<AuthenticationState> _mapLoggedInToState() async* {
-    yield Authenticated(await _userRepository.getUser());
+  Stream<AuthenticationState> _mapAuthenticationLoggedInToState() async* {
+    yield AuthenticationSuccess(await _userRepository.getUser());
   }
 
-  Stream<AuthenticationState> _mapLoggedOutToState() async* {
-    yield Unauthenticated();
+  Stream<AuthenticationState> _mapAuthenticationLoggedOutToState() async* {
+    yield AuthenticationFailure();
     _userRepository.signOut();
   }
 }

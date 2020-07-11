@@ -51,7 +51,7 @@ void main() {
   });
 
   test('initial state is correct', () {
-    expect(LoginInitial(), loginBloc.initialState);
+    expect(loginBloc.state, LoginInitial());
   });
 
   test('close does not emit new states', () {
@@ -79,11 +79,12 @@ void main() {
         ),
       ),
       expect: [
-        LoginLoading(),
+        LoginInProgress(),
         LoginInitial(),
       ],
       verify: (_) async {
-        verify(authenticationBloc.add(LoggedIn(token: 'token'))).called(1);
+        verify(authenticationBloc.add(AuthenticationLoggedIn(token: 'token')))
+            .called(1);
       },
     );
 
@@ -103,7 +104,7 @@ void main() {
         ),
       ),
       expect: [
-        LoginLoading(),
+        LoginInProgress(),
         LoginFailure(error: 'Exception: login-error'),
       ],
       verify: (_) async {

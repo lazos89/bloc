@@ -6,17 +6,17 @@ import 'package:flutter_firebase_login/user_repository.dart';
 import 'package:flutter_firebase_login/home_screen.dart';
 import 'package:flutter_firebase_login/login/login.dart';
 import 'package:flutter_firebase_login/splash_screen.dart';
-import 'package:flutter_firebase_login/simple_bloc_delegate.dart';
+import 'package:flutter_firebase_login/simple_bloc_observer.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  Bloc.observer = SimpleBlocObserver();
   final UserRepository userRepository = UserRepository();
   runApp(
     BlocProvider(
       create: (context) => AuthenticationBloc(
         userRepository: userRepository,
-      )..add(AppStarted()),
+      )..add(AuthenticationStarted()),
       child: App(userRepository: userRepository),
     ),
   );
@@ -35,10 +35,10 @@ class App extends StatelessWidget {
     return MaterialApp(
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
-          if (state is Unauthenticated) {
+          if (state is AuthenticationFailure) {
             return LoginScreen(userRepository: _userRepository);
           }
-          if (state is Authenticated) {
+          if (state is AuthenticationSuccess) {
             return HomeScreen(name: state.displayName);
           }
           return SplashScreen();

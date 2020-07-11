@@ -10,10 +10,9 @@ import 'package:flutter_todos/models/models.dart';
 import 'package:flutter_todos/screens/screens.dart';
 
 void main() {
-  // BlocSupervisor oversees Blocs and delegates to BlocDelegate.
-  // We can set the BlocSupervisor's delegate to an instance of `SimpleBlocDelegate`.
-  // This will allow us to handle all transitions and errors in SimpleBlocDelegate.
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  // We can set a Bloc's observer to an instance of `SimpleBlocObserver`.
+  // This will allow us to handle all transitions and errors in SimpleBlocObserver.
+  Bloc.observer = SimpleBlocObserver();
   runApp(
     BlocProvider(
       create: (context) {
@@ -24,7 +23,7 @@ void main() {
               getApplicationDocumentsDirectory,
             ),
           ),
-        )..add(LoadTodos());
+        )..add(TodosLoaded());
       },
       child: TodosApp(),
     ),
@@ -67,7 +66,7 @@ class TodosApp extends StatelessWidget {
             key: ArchSampleKeys.addTodoScreen,
             onSave: (task, note) {
               BlocProvider.of<TodosBloc>(context).add(
-                AddTodo(Todo(task, note: note)),
+                TodoAdded(Todo(task, note: note)),
               );
             },
             isEditing: false,

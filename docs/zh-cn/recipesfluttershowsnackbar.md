@@ -1,147 +1,47 @@
-# Recipes: Show SnackBar with BlocListener
+# 配方：使用 BlocListener 显示 SnackBar
 
-> In this recipe, we're going to take a look at how to use `BlocListener` to show a `SnackBar` in response to a state change in a bloc.
+> 在这里，我们将展示如何使用 `BlocListener` 显示一个 `SnackBar` 来响应 bloc 的状态改变。
 
-![demo](./assets/gifs/recipes_flutter_snack_bar.gif)
+![demo](../assets/gifs/recipes_flutter_snack_bar.gif)
 
 ## Bloc
 
-Let's build a basic `DataBloc` which will handle `DataEvents` and output `DataStates`.
+让我们构建一个基础的 `DataBloc`，它将处理 `DataEvents` 输入和 `DataStates` 输出。
 
 ### DataEvent
 
-For simplicity, our `DataBloc` will only respond to a single `DataEvent` called `FetchData`.
+简单起见，`DataBloc` 只响应名为 `FetchData` 的 `DataEvent`。
 
-```dart
-import 'package:meta/meta.dart';
-
-@immutable
-abstract class DataEvent {}
-
-class FetchData extends DataEvent {}
-```
+[data_event.dart](../_snippets/recipes_flutter_show_snack_bar/data_event.dart.md ':include')
 
 ### DataState
 
-Our `DataBloc` can have one of three different `DataStates`:
+`DataBloc` 可以是以下三种 `DataStates` 状态中的一种：
 
-- `Initial` - the initial state before any events are added
-- `Loading` - the state of the bloc while it is asynchronously "fetching data"
-- `Success` - the state of the bloc when it has successfully "fetched data"
+- `Initial` - 未添加任何事件之前的初始状态
+- `Loading` - bloc 异步“获取数据”时的状态
+- `Success` - bloc 成功“获取数据”后的状态
 
-```dart
-import 'package:meta/meta.dart';
-
-@immutable
-abstract class DataState {}
-
-class Initial extends DataState {}
-
-class Loading extends DataState {}
-
-class Success extends DataState {}
-```
+[data_state.dart](../_snippets/recipes_flutter_show_snack_bar/data_state.dart.md ':include')
 
 ### DataBloc
 
-Our `DataBloc` should look something like this:
+`DataBloc` 的实现如下：
 
-```dart
-import 'package:bloc/bloc.dart';
+[data_bloc.dart](../_snippets/recipes_flutter_show_snack_bar/data_bloc.dart.md ':include')
 
-class DataBloc extends Bloc<DataEvent, DataState> {
-  @override
-  DataState get initialState => Initial();
+?> **注意：** 我们使用 `Future.delayed` 来模拟延迟。
 
-  @override
-  Stream<DataState> mapEventToState(
-    DataEvent event,
-  ) async* {
-    if (event is FetchData) {
-      yield Loading();
-      await Future.delayed(Duration(seconds: 2));
-      yield Success();
-    }
-  }
-}
-```
+## UI 层
 
-?> **Note:** We're using `Future.delayed` to simulate latency.
+现在我们将展示如何把 `DataBloc` 挂载到一个部件，并显示 一个`SnackBar` 来响应成功的状态。
 
-## UI Layer
+[main.dart](../_snippets/recipes_flutter_show_snack_bar/main.dart.md ':include')
 
-Now let's take a look at how to hook up our `DataBloc` to a widget and show a `SnackBar` in response to a success state.
+?> 在 `DataBloc` 中，当状态改变时，我们使用了 `BlocListener` 部件来**做某些事情**。
 
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+?> 在 `DataBloc` 中，当状态改变时，我们使用了 `BlocBuilder` 部件来**渲染组件**。
 
-void main() => runApp(MyApp());
+!> 我们一定**不要**在 `BlocBuilder` 的 `builder` 方法中“做某些事情”来响应状态的改变，因为 Flutter 框架会多次调用该方法。 `builder` 方法应该是一个[纯方法](https://en.wikipedia.org/wiki/Pure_function)，它只是返回一个部件来响应 bloc 的状态改变。
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DataBloc(),
-      child: MaterialApp(
-        home: Home(),
-      ),
-    );
-  }
-}
-
-class Home extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final dataBloc = BlocProvider.of<DataBloc>(context);
-    return Scaffold(
-      appBar: AppBar(title: Text('Home')),
-      body: BlocListener<DataBloc, DataState>(
-        listener: (context, state) {
-          if (state is Success) {
-            Scaffold.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.green,
-                content: Text('Success'),
-              ),
-            );
-          }
-        },
-        child: BlocBuilder<DataBloc, DataState>(
-          builder: (context, state) {
-            if (state is Initial) {
-              return Center(child: Text('Press the Button'));
-            }
-            if (state is Loading) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (state is Success) {
-              return Center(child: Text('Success'));
-            }
-          },
-        ),
-      ),
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          FloatingActionButton(
-            child: Icon(Icons.play_arrow),
-            onPressed: () {
-              dataBloc.add(FetchData());
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
-?> We use the `BlocListener` widget in order to **DO THINGS** in response to state changes in our `DataBloc`.
-
-?> We use the `BlocBuilder` widget in order to **RENDER WIDGETS** in response to state changes in our `DataBloc`.
-
-!> We should **NEVER** "do things" in response to state changes in the `builder` method of `BlocBuilder` because that method can be called many times by the Flutter framework. The `builder` method should be a [pure function](https://en.wikipedia.org/wiki/Pure_function) that just returns a widget in response to the state of the bloc.
-
-The full source for this recipe can be found [here](https://gist.github.com/felangel/1e5b2c25b263ad1aa7bbed75d8c76c44).
+您可以在[这里](https://gist.github.com/felangel/1e5b2c25b263ad1aa7bbed75d8c76c44)查看完整源代码。

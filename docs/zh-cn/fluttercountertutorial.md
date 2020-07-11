@@ -1,168 +1,65 @@
-# Flutter Counter Tutorial
+# Flutter 计数器教程
 
 ![beginner](https://img.shields.io/badge/level-beginner-green.svg)
 
-> In the following tutorial, we're going to build a Counter in Flutter using the Bloc library.
+> 在接下来的教程中，我们将使用 `Bloc` 库来构造一个计数器
 
-![demo](./assets/gifs/flutter_counter.gif)
+![demo](../assets/gifs/flutter_counter.gif)
 
-## Setup
+## 起步
 
-We'll start off by creating a brand new Flutter project
+我们将从创建一个全新的 `Flutter` 项目开始（在控制台中输入以下指令）
 
-```bash
-flutter create flutter_counter
-```
+[script](../_snippets/flutter_counter_tutorial/flutter_create.sh.md ':include')
 
-We can then go ahead and replace the contents of `pubspec.yaml` with
+首先，我们需要将 `pubspec.yaml` 文件中的的内容替换为以下内容，
 
-```yaml
-name: flutter_counter
-description: A new Flutter project.
-version: 1.0.0+1
+[pubspec.yaml](../_snippets/flutter_counter_tutorial/pubspec.yaml.md ':include')
 
-environment:
-  sdk: ">=2.0.0 <3.0.0"
+替换之后下一步就可以安装所有的依赖包了（在控制台中输入以下指令）
 
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_bloc: ^3.2.0
-  meta: ^1.1.6
+[script](../_snippets/flutter_counter_tutorial/flutter_packages_get.sh.md ':include')
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+我们的计数器应用程序将只有两个按钮来 `增加` 和 `减少` 计数器的值，以及一个 `Text` 部件来显示当前计数器的值。 让我们开始设计 `CounterEvents` 吧。
 
-flutter:
-  uses-material-design: true
-```
+## Counter Events 事件
 
-and then install all of our dependencies
+[counter_event.dart](../_snippets/flutter_counter_tutorial/counter_event.dart.md ':include')
 
-```bash
-flutter packages get
-```
+## Counter States 状态
 
-Our counter app is just going to have two buttons to increment/decrement the counter value and a `Text` widget to display the current value. Let's get started designing the `CounterEvents`.
-
-## Counter Events
-
-```dart
-enum CounterEvent { increment, decrement }
-```
-
-## Counter States
-
-Since our counter's state can be represented by an integer we don't need to create a custom class!
+因为计数器的状态可以用整数表示，因此我们不需要创建新的类！
 
 ## Counter Bloc
 
-```dart
-class CounterBloc extends Bloc<CounterEvent, int> {
-  @override
-  int get initialState => 0;
+[counter_bloc.dart](../_snippets/flutter_counter_tutorial/counter_bloc.dart.md ':include')
 
-  @override
-  Stream<int> mapEventToState(CounterEvent event) async* {
-    switch (event) {
-      case CounterEvent.decrement:
-        yield state - 1;
-        break;
-      case CounterEvent.increment:
-        yield state + 1;
-        break;
-    }
-  }
-}
-```
-
-?> **Note**: Just from the class declaration we can tell that our `CounterBloc` will be taking `CounterEvents` as input and outputting integers.
+?> **提示**: 仅仅从类的声明中，我们就可以得知 `CounterBloc` 将以 `CounterEvents` 输入和输出整数。
 
 ## Counter App
 
-Now that we have our `CounterBloc` fully implemented, we can get started creating our Flutter application.
+现在我们已经完全实现了 `CounterBloc`，接下来就可以开始创建Flutter应用程序了。
 
-```dart
-void main() => runApp(MyApp());
+[main.dart](../_snippets/flutter_counter_tutorial/main.dart.md ':include')
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home: BlocProvider<CounterBloc>(
-        create: (context) => CounterBloc(),
-        child: CounterPage(),
-      ),
-    );
-  }
-}
-```
-
-?> **Note**: We are using the `BlocProvider` widget from `flutter_bloc` in order to make the instance of `CounterBloc` available to the entire subtree (`CounterPage`). `BlocProvider` also handles closing the `CounterBloc` automatically so we don't need to use a `StatefulWidget`.
+?> **提示**: 我们正在使用 `Flutter_bloc` 中的 `BlocProvider` 部件，使得 `CounterBloc` 的实例可用于整个子树（`CounterPage`）。 `BlocProvider` 还可以自动关闭 `CounterBloc`，因此在此我们不需要使用 `StatefulWidget`。
 
 ## Counter Page
 
-Finally, all that's left is to build our Counter Page.
+最后剩下的步骤就是搭建我们的 `Counter` 页面了
 
-```dart
-class CounterPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final CounterBloc counterBloc = BlocProvider.of<CounterBloc>(context);
+[counter_page.dart](../_snippets/flutter_counter_tutorial/counter_page.dart.md ':include')
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Counter')),
-      body: BlocBuilder<CounterBloc, int>(
-        builder: (context, count) {
-          return Center(
-            child: Text(
-              '$count',
-              style: TextStyle(fontSize: 24.0),
-            ),
-          );
-        },
-      ),
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0),
-            child: FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                counterBloc.add(CounterEvent.increment);
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0),
-            child: FloatingActionButton(
-              child: Icon(Icons.remove),
-              onPressed: () {
-                counterBloc.add(CounterEvent.decrement);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
+?> **提示**: 我们可以使用 `BlocProvider.of<CounterBloc>(context)` 访问 `CounterBloc` 实例，因为我们将 `CounterPage` 包装在 `BlocProvider` 中。
 
-?> **Note**: We are able to access the `CounterBloc` instance using `BlocProvider.of<CounterBloc>(context)` because we wrapped our `CounterPage` in a `BlocProvider`.
+?> **提示**: 我们使用来自 `Flutter_bloc` 的 `BlocBuilder` 部件，以响应状态变化（计数器值的变化）重建UI。
 
-?> **Note**: We are using the `BlocBuilder` widget from `flutter_bloc` in order to rebuild our UI in response to state changes (changes in the counter value).
+?> **提示**: `BlocBuilder` 具有一个可选的 `bloc` 参数，但是我们可以指定块的类型和状态的类型，而 `BlocBuilder` 会自动找到该 `Bloc`，因此我们无需显式使用 `BlocProvider.of<CounterBloc>(context)`。
 
-?> **Note**: `BlocBuilder` takes an optional `bloc` parameter but we can specify the type of the bloc and the type of the state and `BlocBuilder` will find the bloc automatically so we don't need to explicity use `BlocProvider.of<CounterBloc>(context)`.
+!> 仅当您的部件无法通过父类 `BlocProvider` 和当前 `BuildContext` 来访问的 `Bloc` 时，才在 ` BlocBuilder` 中指定该 `Bloc`。
 
-!> Only specify the bloc in `BlocBuilder` if you wish to provide a bloc that will be scoped to a single widget and isn't accessible via a parent `BlocProvider` and the current `BuildContext`.
+仅此而已！ 我们已经将 `presentation layer` (表示层) 与 `business logic layer` (业务逻辑层) 分离了。 我们的 `CounterPage` 不知道当用户按下按钮时会发生什么。 它只是添加了一个事件来通知 `CounterBloc`。 此外，我们的 `CounterBloc` 也不知道状态（计数器值）发生了什么。 它只是将 `CounterEvents` 转换为整数。
 
-That's it! We've separated our presentation layer from our business logic layer. Our `CounterPage` has no idea what happens when a user presses a button; it just adds an event to notify the `CounterBloc`. Furthermore, our `CounterBloc` has no idea what is happening with the state (counter value); it's simply converting the `CounterEvents` into integers.
+我们可以使用 `Flutter Run` 来运行我们的应用程序，并可以在您的设备或模拟器或者模拟器上查看它。
 
-We can run our app with `flutter run` and can view it on our device or simulator/emulator.
-
-The full source for this example can be found [here](https://github.com/felangel/Bloc/tree/master/packages/flutter_bloc/example).
+您可以在此处找到示例的完整源代码[这里](https://github.com/felangel/Bloc/tree/master/packages/flutter_bloc/example).

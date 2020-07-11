@@ -8,26 +8,19 @@
 
 ### Anatomía
 
-`Sujeto del Bloc` + `Sustantivo (opcional)` + `Verbo (evento)`
+[event](../_snippets/bloc_naming_conventions/event_anatomy.md ':include')
 
-> Los eventos de carga inicial deben seguir la siguiente nomenclatura: `Sujeto del Bloc` + `Started`
+?> Los eventos de carga inicial deben seguir la siguiente nomenclatura: `Sujeto del Bloc` + `Started`
 
 #### Ejemplos
 
 ✅ **Bien**
 
-`CounterStarted`
-`CounterIncremented`
-`CounterDecremented`
-`CounterIncrementRetried`
+[events_good](../_snippets/bloc_naming_conventions/event_examples_good.md ':include')
 
 ❌ **Mal**
 
-`Initial`
-`CounterInitialized`
-`Increment`
-`DoIncrement`
-`IncrementCounter`
+[events_bad](../_snippets/bloc_naming_conventions/event_examples_bad.md ':include')
 
 ## Nomenclatura de estados
 
@@ -35,26 +28,16 @@
 
 ### Anatomía
 
-`Sujeto del Bloc` + `Verbo (acción)` + `Estado`
+[state](../_snippets/bloc_naming_conventions/state_anatomy.md ':include')
 
-> El valor de `Estado` deberían ser uno de los siguientes: `Initial` | `Success` | `Failure` | `InProgress` y el estado inicial deberia seguir la nomenclatura: `Sujeto del Bloc` + `Initial`.
+?> El valor de `Estado` deberían ser uno de los siguientes: `Initial` | `Success` | `Failure` | `InProgress` y el estado inicial deberia seguir la nomenclatura: `Sujeto del Bloc` + `Initial`.
 
 #### Ejemplos
 
 ✅ **Bien**
 
-`CounterInitial`
-`CounterLoadInProgress`
-`CounterLoadSuccess`
-`CounterLoadFailure`
+[states_good](../_snippets/bloc_naming_conventions/state_examples_good.md ':include')
 
 ❌ **Mal**
 
-`Initial`
-`Loading`
-`Success`
-`Succeeded`
-`Loaded`
-`Failure`
-`Failed`
-
+[states_bad](../_snippets/bloc_naming_conventions/state_examples_bad.md ':include')

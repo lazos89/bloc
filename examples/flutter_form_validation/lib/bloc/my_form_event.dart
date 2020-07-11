@@ -1,11 +1,13 @@
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
+part of 'my_form_bloc.dart';
 
 abstract class MyFormEvent extends Equatable {
   const MyFormEvent();
 
   @override
   List<Object> get props => [];
+
+  @override
+  bool get stringify => true;
 }
 
 class EmailChanged extends MyFormEvent {
@@ -15,9 +17,6 @@ class EmailChanged extends MyFormEvent {
 
   @override
   List<Object> get props => [email];
-
-  @override
-  String toString() => 'EmailChanged { email: $email }';
 }
 
 class PasswordChanged extends MyFormEvent {
@@ -27,11 +26,6 @@ class PasswordChanged extends MyFormEvent {
 
   @override
   List<Object> get props => [password];
-
-  @override
-  String toString() => 'PasswordChanged { password: $password }';
 }
 
 class FormSubmitted extends MyFormEvent {}
-
-class FormReset extends MyFormEvent {}

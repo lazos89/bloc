@@ -1,3 +1,56 @@
+# 6.0.1
+
+- fix: upgrade to `bloc ^5.0.1`
+- fix: upgrade to `cubit_test ^0.1.1`
+- docs: minor documentation updates
+
+# 6.0.0
+
+- feat: upgrade to `bloc ^5.0.0`
+- refactor: internal implementation updates to use [cubit_test](https://pub.dev/packages/cubit_test)
+
+# 6.0.0-dev.4
+
+- Update to `bloc ^5.0.0-dev.11`.
+
+# 6.0.0-dev.3
+
+- Update to `bloc ^5.0.0-dev.10`.
+
+# 6.0.0-dev.2
+
+- Update to `bloc ^5.0.0-dev.7`.
+
+# 6.0.0-dev.1
+
+- Update to `bloc ^5.0.0-dev.6`.
+- Internal implementation updates to use [cubit_test](https://pub.dev/packages/cubit_test)
+
+# 5.1.0
+
+- Add `errors` to `blocTest` to enable expecting unhandled exceptions within blocs.
+- Update `whenListen` to also handle stubbing the state property of the bloc.
+
+# 5.0.0
+
+- Update to `bloc: ^4.0.0`
+
+# 5.0.0-dev.4
+
+- Update to `bloc: ^4.0.0-dev.4`
+
+# 5.0.0-dev.3
+
+- Update to `bloc: ^4.0.0-dev.3`
+
+# 5.0.0-dev.2
+
+- Update to `bloc: ^4.0.0-dev.2`
+
+# 5.0.0-dev.1
+
+- Update to `bloc: ^4.0.0-dev.1`
+
 # 4.0.0
 
 - `blocTest` and `emitsExactly` skip `initialState` by default and expose optional `skip` ([#910](https://github.com/felangel/bloc/issues/910))

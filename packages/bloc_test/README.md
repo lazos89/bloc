@@ -1,15 +1,20 @@
-<img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/bloc_test_logo_full.png" height="60" alt="Bloc Test Package" />
+<p align="center">
+<img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/bloc_test_logo_full.png" height="100" alt="Bloc Test Package" />
+</p>
 
-[![Pub](https://img.shields.io/pub/v/bloc_test.svg)](https://pub.dev/packages/bloc_test)
-[![build](https://github.com/felangel/bloc/workflows/build/badge.svg)](https://github.com/felangel/bloc/actions)
-[![codecov](https://codecov.io/gh/felangel/Bloc/branch/master/graph/badge.svg)](https://codecov.io/gh/felangel/bloc)
-[![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://github.com/tenhobi/effective_dart)
-[![Flutter Website](https://img.shields.io/badge/flutter-website-deepskyblue.svg)](https://flutter.dev/docs/development/data-and-backend/state-mgmt/options#bloc--rx)
-[![Awesome Flutter](https://img.shields.io/badge/awesome-flutter-blue.svg?longCache=true)](https://github.com/Solido/awesome-flutter#standard)
-[![Flutter Samples](https://img.shields.io/badge/flutter-samples-teal.svg?longCache=true)](http://fluttersamples.com)
-[![Star on GitHub](https://img.shields.io/github/stars/felangel/bloc.svg?style=flat&logo=github&colorB=deeppink&label=stars)](https://github.com/felangel/bloc)
-[![Discord](https://img.shields.io/discord/649708778631200778.svg?logo=discord&color=blue)](https://discord.gg/Hc5KD3g)
-[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+<a href="https://pub.dev/packages/bloc_test"><img src="https://img.shields.io/pub/v/bloc_test.svg" alt="Pub"></a>
+<a href="https://github.com/felangel/bloc/actions"><img src="https://github.com/felangel/bloc/workflows/build/badge.svg" alt="build"></a>
+<a href="https://codecov.io/gh/felangel/bloc"><img src="https://codecov.io/gh/felangel/Bloc/branch/master/graph/badge.svg" alt="codecov"></a>
+<a href="https://github.com/felangel/bloc"><img src="https://img.shields.io/github/stars/felangel/bloc.svg?style=flat&logo=github&colorB=deeppink&label=stars" alt="Star on Github"></a>
+<a href="https://github.com/tenhobi/effective_dart"><img src="https://img.shields.io/badge/style-effective_dart-40c4ff.svg" alt="style: effective dart"></a>
+<a href="https://flutter.dev/docs/development/data-and-backend/state-mgmt/options#bloc--rx"><img src="https://img.shields.io/badge/flutter-website-deepskyblue.svg" alt="Flutter Website"></a>
+<a href="https://github.com/Solido/awesome-flutter#standard"><img src="https://img.shields.io/badge/awesome-flutter-blue.svg?longCache=true" alt="Awesome Flutter"></a>
+<a href="https://fluttersamples.com"><img src="https://img.shields.io/badge/flutter-samples-teal.svg?longCache=true" alt="Flutter Samples"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
+<a href="https://discord.gg/Hc5KD3g"><img src="https://img.shields.io/discord/649708778631200778.svg?logo=discord&color=blue" alt="Discord"></a>
+<a href="https://github.com/felangel/bloc"><img src="https://tinyurl.com/bloc-library" alt="Bloc Library"></a>
+</p>
 
 ---
 
@@ -25,7 +30,7 @@ class MockCounterBloc extends MockBloc<CounterEvent, int> implements CounterBloc
 
 ## Stub the Bloc Stream
 
-**whenListen** creates a stub response for the `listen` method on a `Bloc`. Use `whenListen` if you want to return a canned `Stream` of states for a bloc instance.
+**whenListen** creates a stub response for the `listen` method on a `Bloc`. Use `whenListen` if you want to return a canned `Stream` of states for a bloc instance. `whenListen` also handles stubbing the `state` of the bloc to stay in sync with the emitted state.
 
 ```dart
 // Create a mock instance
@@ -35,7 +40,10 @@ final counterBloc = MockCounterBloc();
 whenListen(counterBloc, Stream.fromIterable([0, 1, 2, 3]));
 
 // Assert that the bloc emits the stubbed `Stream`.
-expectLater(counterBloc, emitsInOrder(<int>[0, 1, 2, 3])))
+await expectLater(counterBloc, emitsInOrder(<int>[0, 1, 2, 3])))
+
+// Assert that the bloc's current state is in sync with the `Stream`.
+expect(counterBloc.state, equals(3));
 ```
 
 ## Unit Test a Real Bloc with blocTest
@@ -50,9 +58,11 @@ expectLater(counterBloc, emitsInOrder(<int>[0, 1, 2, 3])))
 
 `wait` is an optional `Duration` which can be used to wait for async operations within the `bloc` under test such as `debounceTime`.
 
-`expect` is an `Iterable<State>` which the `bloc` under test is expected to emit after `act` is executed.
+`expect` is an optional `Iterable<State>` which the `bloc` under test is expected to emit after `act` is executed.
 
 `verify` is an optional callback which is invoked after `expect` and can be used for additional verification/assertions. `verify` is called with the `bloc` returned by `build`.
+
+`errors` is an optional `Iterable` of error matchers which the `bloc` under test is expected to have thrown after `act` is executed.
 
 ```dart
 group('CounterBloc', () {
@@ -103,9 +113,22 @@ blocTest(
   build: () async => CounterBloc(),
   act: (bloc) => bloc.add(CounterEvent.increment),
   expect: [1],
-  verify: () async {
+  verify: (_) async {
     verify(repository.someMethod(any)).called(1);
   }
+);
+```
+
+`blocTest` can also be used to expect that exceptions have been thrown.
+
+```dart
+blocTest(
+  'CounterBloc throws Exception when null is added',
+  build: () async => CounterBloc(),
+  act: (bloc) => bloc.add(null),
+  errors: [
+    isA<Exception>(),
+  ]
 );
 ```
 
@@ -176,3 +199,7 @@ test('emits [1] when CounterEvent.increment is added', () async {
 ## Maintainers
 
 - [Felix Angelov](https://github.com/felangel)
+
+## Supporters
+
+[<img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/vgv_logo.png" width="120" />](https://verygood.ventures)

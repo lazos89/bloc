@@ -6,17 +6,16 @@ import 'package:rxdart/rxdart.dart';
 enum DebounceCounterEvent { increment }
 
 class DebounceCounterBloc extends Bloc<DebounceCounterEvent, int> {
-  @override
-  int get initialState => 0;
+  DebounceCounterBloc() : super(0);
 
   @override
-  Stream<int> transformEvents(
+  Stream<Transition<DebounceCounterEvent, int>> transformEvents(
     Stream<DebounceCounterEvent> events,
-    Stream<int> Function(DebounceCounterEvent event) next,
+    TransitionFunction<DebounceCounterEvent, int> transitionFn,
   ) {
     return events
         .debounceTime(const Duration(milliseconds: 300))
-        .switchMap(next);
+        .switchMap(transitionFn);
   }
 
   @override

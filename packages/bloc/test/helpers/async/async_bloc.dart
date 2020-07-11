@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
 
-import './async.dart';
+part 'async_event.dart';
+part 'async_state.dart';
 
 class AsyncBloc extends Bloc<AsyncEvent, AsyncState> {
-  @override
-  AsyncState get initialState => AsyncState.initial();
+  AsyncBloc() : super(AsyncState.initial());
 
   @override
   Stream<AsyncState> mapEventToState(AsyncEvent event) async* {
